@@ -1,0 +1,19 @@
+# Env
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+
+# Uploaded resumes (local dev storage — see backend/app/core/config.py UPLOAD_DIR)
+backend/uploads/
+
+# OS
+.DS_Store

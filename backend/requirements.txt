@@ -1,0 +1,48 @@
+# --- Web framework ---
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+
+# --- Settings / validation ---
+pydantic==2.9.2
+pydantic-settings==2.6.1
+email-validator==2.2.0
+
+# --- Database ---
+sqlalchemy[asyncio]==2.0.35
+asyncpg==0.30.0
+alembic==1.14.0
+pgvector==0.3.6
+
+# --- Auth (Phase 2) ---
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+# passlib 1.7.4 probes bcrypt.__about__.__version__, which newer bcrypt
+# releases removed — pin to the last version that still has it.
+bcrypt==4.0.1
+python-multipart==0.0.17
+
+# --- AI provider (Phase 3) ---
+anthropic==0.39.0
+
+# --- Resume text extraction (Phase 3) ---
+pypdf==5.1.0
+python-docx==1.1.2
+
+# --- RAG pipeline (Phase 5) ---
+sse-starlette==2.1.3          # server-sent events for streaming chat responses
+tiktoken==0.8.0               # token counting for context window management
+
+# --- Testing ---
+pytest==8.3.4
+pytest-asyncio==0.24.0
+httpx==0.27.2
+# In-memory async SQLite for the auth test suite, so tests don't require a
+# running Postgres instance.
+aiosqlite==0.20.0
+
+# --- Agents / LangGraph (Phase 7) ---
+langchain-core==0.3.21
+langgraph==0.2.53
+langchain-anthropic==0.3.0
+langchain-community==0.3.8
+slowapi==0.1.9

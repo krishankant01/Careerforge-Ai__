@@ -1,0 +1,89 @@
+services:
+  postgres:
+    # pgvector/pgvector image = standard Postgres + the pgvector extension
+    # pre-installed, so we don't need to compile it ourselves.
+    image: pgvector/pgvector:pg16
+    container_name: careerforge-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: careerforge
+      POSTGRES_PASSWORD: careerforge
+      POSTGRES_DB: careerforge
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U careerforge"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Phase 5: Ollama — local LLM + embedding server.
+  # Serves both:
+  #   - nomic-embed-text  (768-dim embeddings for pgvector)
+  #   - llama3.2:1b       (LLM for RAG answer generation — fits in 3.8 GB Docker RAM)
+  # GPU: uncomment the 'deploy' block below if you have CUDA/ROCm available.
+  # NOTE: llama3.1 (4.9 GB) is too large for the default Docker memory limit.
+  ollama:
+    image: ollama/ollama:latest
+    container_name: careerforge-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # --- Uncomment for GPU acceleration ---
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:11434/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  backend:
+    build: ./backend
+    container_name: careerforge-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Inside Docker's network, service names resolve to containers.
+      DATABASE_URL: postgresql+asyncpg://careerforge:careerforge@postgres:5432/careerforge
+      OLLAMA_BASE_URL: http://ollama:11434
+      EMBEDDING_PROVIDER: ollama
+      EMBEDDING_MODEL: nomic-embed-text
+      EMBEDDING_DIMENSIONS: "768"
+      LLM_PROVIDER: ollama
+      LLM_MODEL: llama3.2:1b
+      OLLAMA_AUTO_PULL: "false"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build: ./frontend
+    container_name: careerforge-frontend
+    restart: unless-stopped
+    environment:
+      BACKEND_URL: "http://backend:8000"
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  ollama_data:    # persists downloaded models between container restarts
