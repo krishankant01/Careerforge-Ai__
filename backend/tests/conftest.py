@@ -67,6 +67,10 @@ async def client(db_session: AsyncSession, test_engine, monkeypatch):
     background_session_factory = async_sessionmaker(bind=test_engine, expire_on_commit=False)
     monkeypatch.setattr(database, "AsyncSessionLocal", background_session_factory)
 
+    # Disable rate limiting for tests to prevent 429 errors when multiple tests register users
+    from app.core.rate_limit import limiter
+    monkeypatch.setattr(limiter, "enabled", False)
+
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as c:
         yield c
