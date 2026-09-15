@@ -729,12 +729,11 @@ class RAGPipeline:
             )
 
         user_parts: list[str] = []
-        user_parts.append(f"Question: {question}")
         if history:
             user_parts.append(f"[Conversation History]\n{history}")
         if context:
             user_parts.append(f"[Context from your career documents]\n{context}")
-        user_parts.append(f"Please answer the Question based ONLY on the Context above.\nQuestion: {question}")
+        user_parts.append(f"Question: {question}")
 
         user_prompt = "\n\n".join(user_parts)
 
@@ -783,12 +782,11 @@ class RAGPipeline:
             )
 
         user_parts: list[str] = []
-        user_parts.append(f"Question: {question}")
         if history:
             user_parts.append(f"[Conversation History]\n{history}")
         if context:
             user_parts.append(f"[Context from your career documents]\n{context}")
-        user_parts.append(f"Please answer the Question based ONLY on the Context above.\nQuestion: {question}")
+        user_parts.append(f"Question: {question}")
         user_prompt = "\n\n".join(user_parts)
 
         provider = get_ai_provider()

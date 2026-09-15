@@ -31,11 +31,9 @@ async def _call_agent(state: AgentState, role_description: str, agent_name: str)
         "3. Focus ONLY on your specific domain. Do not try to perform tasks meant for other agents."
     )
     
-    user_context = state.get("user_context", "")
-    
     # Use the last message as the primary query, but provide history for context
     last_message = history[-1].content if history else ""
-    user_prompt = f"User Context (Resume & Jobs):\n{user_context}\n\nConversation History:\n{history_str}\n\nUser Request: {last_message}"
+    user_prompt = f"Conversation History:\n{history_str}\n\nUser Request: {last_message}"
 
     try:
         response_text = await provider.generate_text(system_prompt, user_prompt, max_tokens=1500)

@@ -12,7 +12,7 @@ from app.agents.state import AgentState
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/agents", tags=["Agents"])
+router = APIRouter(prefix="/api/agents", tags=["Agents"])
 
 class AgentChatRequest(BaseModel):
     message: str
